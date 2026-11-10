@@ -130,3 +130,182 @@ class Brick(GameObject):
         return False
 
 
+# ==============================
+# CLASS GAME
+# ==============================
+class Game(tk.Frame):
+
+    def __init__(self, master):
+        super().__init__(master)
+
+        self.master = master
+        self.width = 610
+        self.height = 450
+
+        self.score = 0
+        self.lives = 3
+        self.level = 1
+
+        self.running = False
+        self.game_over = False
+        self.after_id = None
+
+        self.items = {}
+        self.ball = None
+
+        self.pack()
+
+        # Canvas permainan
+        self.canvas = tk.Canvas(
+            self,
+            width=self.width,
+            height=self.height,
+            bg="#172554",
+            highlightthickness=0
+        )
+        self.canvas.pack()
+
+        # Informasi skor
+        self.hud = self.canvas.create_text(
+            100, 20,
+            text="Score: 0",
+            fill="white",
+            font=("Arial", 14, "bold")
+        )
+
+        self.life_text = self.canvas.create_text(
+            300, 20,
+            text="Lives: 3",
+            fill="white",
+            font=("Arial", 14, "bold")
+        )
+
+        self.level_text = self.canvas.create_text(
+            500, 20,
+            text="Level: 1",
+            fill="white",
+            font=("Arial", 14, "bold")
+        )
+
+        # Membuat paddle
+        self.paddle = Paddle(
+            self.canvas,
+            self.width / 2,
+            410
+        )
+
+        self.items[self.paddle.item] = self.paddle
+
+        # Membuat bola dan balok
+        self.create_bricks()
+        self.add_ball()
+
+        # Tampilan menu awal
+        self.show_message(
+            "BREAKOUT GAME",
+            "Tekan tombol START untuk bermain"
+        )
+
+        # Tombol kontrol
+        button_frame = tk.Frame(self)
+        button_frame.pack(pady=8)
+
+        self.start_button = tk.Button(
+            button_frame,
+            text="START",
+            width=12,
+            bg="#27ae60",
+            fg="white",
+            command=self.start_game
+        )
+        self.start_button.pack(side="left", padx=5)
+
+        self.pause_button = tk.Button(
+            button_frame,
+            text="PAUSE",
+            width=12,
+            bg="#f39c12",
+            fg="white",
+            command=self.pause_game
+        )
+        self.pause_button.pack(side="left", padx=5)
+
+        self.restart_button = tk.Button(
+            button_frame,
+            text="RESTART",
+            width=12,
+            bg="#e74c3c",
+            fg="white",
+            command=self.restart_game
+        )
+        self.restart_button.pack(side="left", padx=5)
+
+        # Keyboard
+        self.master.bind("<Left>", self.move_left)
+        self.master.bind("<Right>", self.move_right)
+        self.master.bind("<space>", self.space_control)
+
+    # ==============================
+    # MEMBUAT BALOK
+    # ==============================
+    def create_bricks(self):
+        for row in range(4):
+            for col in range(7):
+
+                x = 75 + col * 77
+                y = 70 + row * 28
+
+                hits = random.randint(1, 3)
+
+                brick = Brick(
+                    self.canvas,
+                    x,
+                    y,
+                    hits
+                )
+
+                self.items[brick.item] = brick
+
+    # ==============================
+    # MEMBUAT BOLA
+    # ==============================
+    def add_ball(self):
+        if self.ball is not None:
+            self.ball.delete()
+
+        paddle_coords = self.paddle.get_position()
+
+        x = (paddle_coords[0] + paddle_coords[2]) / 2
+
+        self.ball = Ball(
+            self.canvas,
+            x,
+            390,
+            speed=5 + self.level
+        )
+
+    # ==============================
+    # MENAMPILKAN PESAN
+    # ==============================
+    def show_message(self, title, subtitle):
+        self.canvas.delete("message")
+
+        self.canvas.create_text(
+            self.width / 2,
+            200,
+            text=title,
+            fill="#f1c40f",
+            font=("Arial", 28, "bold"),
+            tags="message"
+        )
+
+        self.canvas.create_text(
+            self.width / 2,
+            245,
+            text=subtitle,
+            fill="white",
+            font=("Arial", 13),
+            tags="message"
+        )
+
+    
