@@ -470,4 +470,57 @@ class Game(tk.Frame):
 
         self.start_button.config(state="normal")
 
+    # ==============================
+    # KEHILANGAN NYAWA
+    # ==============================
+    def lose_life(self):
+
+        self.lives -= 1
+        self.update_hud()
+
+        if self.lives <= 0:
+            self.end_game()
+            return
+
+        self.running = False
+
+        self.add_ball()
+
+        self.show_message(
+            "BALL LOST!",
+            "Tekan START untuk mencoba lagi"
+        )
+
+        self.start_button.config(state="normal")
+
+    # ==============================
+    # MENANG
+    # ==============================
+    def win_game(self):
+
+        self.running = False
+        self.game_over = True
+
+        self.show_message(
+            "YOU WIN!",
+            f"Skor akhir: {self.score}"
+        )
+
+        self.start_button.config(state="disabled")
+
+    # ==============================
+    # GAME OVER
+    # ==============================
+    def end_game(self):
+
+        self.running = False
+        self.game_over = True
+
+        self.show_message(
+            "GAME OVER!",
+            f"Skor akhir: {self.score}"
+        )
+
+        self.start_button.config(state="disabled")
+
     
