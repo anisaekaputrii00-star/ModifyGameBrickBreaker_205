@@ -59,3 +59,31 @@ class Ball(GameObject):
         )
 
 
+# ==============================
+# CLASS PADDLE
+# ==============================
+class Paddle(GameObject):
+    def __init__(self, canvas, x, y):
+        self.width = 100
+        self.height = 12
+
+        item = canvas.create_rectangle(
+            x - self.width / 2,
+            y - self.height / 2,
+            x + self.width / 2,
+            y + self.height / 2,
+            fill="#f1c40f",
+            outline="white",
+            width=2
+        )
+
+        super().__init__(canvas, item)
+
+    def move_paddle(self, offset):
+        coords = self.get_position()
+        width = self.canvas.winfo_width()
+
+        if coords[0] + offset >= 0 and coords[2] + offset <= width:
+            self.move(offset, 0)
+
+
