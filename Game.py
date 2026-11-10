@@ -446,4 +446,28 @@ class Game(tk.Frame):
                 # Satu balok diproses setiap frame
                 break
 
+    # ==============================
+    # LEVEL BERIKUTNYA
+    # ==============================
+    def next_level(self):
+
+        self.running = False
+
+        if self.level >= 3:
+            self.win_game()
+            return
+
+        self.level += 1
+
+        self.create_bricks()
+        self.add_ball()
+        self.update_hud()
+
+        self.show_message(
+            f"LEVEL {self.level}",
+            "Tekan START untuk melanjutkan"
+        )
+
+        self.start_button.config(state="normal")
+
     
