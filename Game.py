@@ -617,3 +617,17 @@ class Game(tk.Frame):
         )
 
 
+# ==============================
+# MENJALANKAN APLIKASI
+# ==============================
+if __name__ == "__main__":
+
+    root = tk.Tk()
+
+    root.title("Breakout Game - Python Tkinter")
+    root.resizable(False, False)
+    root.configure(bg="#172554")
+
+    game = Game(root)
+
+    root.mainloop()
