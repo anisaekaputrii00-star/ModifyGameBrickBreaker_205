@@ -523,4 +523,97 @@ class Game(tk.Frame):
 
         self.start_button.config(state="disabled")
 
-    
+    # ==============================
+    # RESTART GAME
+    # ==============================
+    def restart_game(self):
+
+        if self.after_id is not None:
+            self.after_cancel(self.after_id)
+            self.after_id = None
+
+        self.running = False
+        self.game_over = False
+
+        self.score = 0
+        self.lives = 3
+        self.level = 1
+
+        self.canvas.delete("all")
+
+        self.items.clear()
+
+        # Membuat ulang HUD
+        self.hud = self.canvas.create_text(
+            100, 20,
+            text="Score: 0",
+            fill="white",
+            font=("Arial", 14, "bold")
+        )
+
+        self.life_text = self.canvas.create_text(
+            300, 20,
+            text="Lives: 3",
+            fill="white",
+            font=("Arial", 14, "bold")
+        )
+
+        self.level_text = self.canvas.create_text(
+            500, 20,
+            text="Level: 1",
+            fill="white",
+            font=("Arial", 14, "bold")
+        )
+
+        self.paddle = Paddle(
+            self.canvas,
+            self.width / 2,
+            410
+        )
+
+        self.items[self.paddle.item] = self.paddle
+
+        self.create_bricks()
+        self.add_ball()
+        self.update_hud()
+
+        self.show_message(
+            "BREAKOUT GAME",
+            "Tekan tombol START untuk bermain"
+        )
+
+        self.start_button.config(state="normal")
+
+    # ==============================
+    # GAME LOOP
+    # ==============================
+    def game_loop(self):
+
+        if not self.running:
+            return
+
+        self.ball.update()
+
+        self.check_collisions()
+
+        # Cek apakah semua balok habis
+        num_bricks = len(
+            self.canvas.find_withtag("brick")
+        )
+
+        if num_bricks == 0:
+            self.next_level()
+            return
+
+        # Cek apakah bola jatuh
+        if self.ball.get_position()[3] >= self.height:
+            self.lose_life()
+            return
+
+        # Mengulang permainan setiap 20 ms
+        self.after_id = self.after(
+            20,
+            self.game_loop
+        )
+
+
