@@ -308,4 +308,142 @@ class Game(tk.Frame):
             tags="message"
         )
 
+    # ==============================
+    # UPDATE SCORE DAN HUD
+    # ==============================
+    def update_hud(self):
+        self.canvas.itemconfig(
+            self.hud,
+            text=f"Score: {self.score}"
+        )
+
+        self.canvas.itemconfig(
+            self.life_text,
+            text=f"Lives: {self.lives}"
+        )
+
+        self.canvas.itemconfig(
+            self.level_text,
+            text=f"Level: {self.level}"
+        )
+
+    # ==============================
+    # GERAK PADDLE
+    # ==============================
+    def move_left(self, event=None):
+        self.paddle.move_paddle(-25)
+
+    def move_right(self, event=None):
+        self.paddle.move_paddle(25)
+
+    # ==============================
+    # MEMULAI GAME
+    # ==============================
+    def start_game(self):
+        if self.game_over:
+            return
+
+        if self.running:
+            return
+
+        self.running = True
+        self.canvas.delete("message")
+
+        self.start_button.config(state="disabled")
+
+        self.game_loop()
+
+    # ==============================
+    # PAUSE GAME
+    # ==============================
+    def pause_game(self):
+        if self.game_over:
+            return
+
+        if self.running:
+            self.running = False
+
+            if self.after_id is not None:
+                self.after_cancel(self.after_id)
+                self.after_id = None
+
+            self.show_message(
+                "GAME PAUSED",
+                "Tekan SPACE atau START untuk melanjutkan"
+            )
+
+            self.start_button.config(state="normal")
+
+        else:
+            self.start_game()
+
+    def space_control(self, event=None):
+        self.pause_game()
+
+    # ==============================
+    # CEK TABRAKAN
+    # ==============================
+    def check_collisions(self):
+
+        ball_coords = self.ball.get_position()
+
+        items = self.canvas.find_overlapping(
+            *ball_coords
+        )
+
+        objects = [
+            self.items[item]
+            for item in items
+            if item in self.items
+        ]
+
+        for obj in objects:
+
+            # Tabrakan dengan paddle
+            if obj == self.paddle:
+
+                if self.ball.direction[1] > 0:
+                    ball_center = (
+                        ball_coords[0] + ball_coords[2]
+                    ) / 2
+
+                    paddle_coords = self.paddle.get_position()
+
+                    paddle_center = (
+                        paddle_coords[0] + paddle_coords[2]
+                    ) / 2
+
+                    difference = (
+                        ball_center - paddle_center
+                    ) / (self.paddle.width / 2)
+
+                    self.ball.direction[0] = max(
+                        -1,
+                        min(1, difference)
+                    )
+
+                    if abs(self.ball.direction[0]) < 0.2:
+                        self.ball.direction[0] = random.choice(
+                            [-0.3, 0.3]
+                        )
+
+                    self.ball.direction[1] = -1
+
+            # Tabrakan dengan brick
+            elif isinstance(obj, Brick):
+
+                self.ball.direction[1] *= -1
+
+                destroyed = obj.hit()
+
+                self.score += 10
+
+                if destroyed:
+                    self.items.pop(obj.item, None)
+
+                self.update_hud()
+
+                # Satu balok diproses setiap frame
+                break
+
     
